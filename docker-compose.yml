@@ -1,0 +1,18 @@
+version: '3'
+services:
+  cottontail:
+    build:
+      context: .
+    depends_on:
+      - rabbitmq
+    environment:
+      AMQP_URL: amqp://guest:guest@cottontail_rabbitmq_1:5672
+    entrypoint: "tail -f /dev/null"
+    working_dir: /usr/src/cottontail
+    volumes:
+      - .:/usr/src/cottontail:delegated
+  rabbitmq:
+    image: rabbitmq:3.6.6-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
