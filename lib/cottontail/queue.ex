@@ -16,6 +16,8 @@ defmodule Cottontail.Queue do
   @adapter Application.get_env(:cottontail, :adapter, AMQP)
 
   def start_link(spec) do
+    Process.flag(:trap_exit, true)
+
     GenServer.start_link(__MODULE__, spec)
   end
 

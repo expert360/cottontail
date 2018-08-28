@@ -15,7 +15,7 @@ defmodule Cottontail.QueueTest do
       description: "a direct test queue for doing tests",
       broker_pid: me,
       url: amqp_url(),
-      exchange: {"test.#{inspect(type)}", type},
+      exchange: {"test.#{Atom.to_string(type)}", type},
       routing_key: "v1.queue",
       dlx_exchange: :auto,
       dlx_routing_key: :auto,
