@@ -8,6 +8,8 @@ defmodule Cottontail.MixProject do
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      package: package(),
+      description: description(),
       elixirc_paths: elixirc_paths(Mix.env),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -36,5 +38,24 @@ defmodule Cottontail.MixProject do
       {:excoveralls, ">= 0.0.0", only: :test},
       {:ex_doc, "~> 0.18.0", only: :dev}
     ]
+  end
+
+  defp package do
+    [
+      files: [
+        "LICENSE.md",
+        "mix.exs",
+        "mix.lock",
+        "README.md",
+        "lib",
+      ],
+      links: %{"GitHub" => "https://github.com/expert360/cottontail"},
+      licenses: ["Apache 2.0"],
+      maintainers: ["Declan Kennedy"],
+    ]
+  end
+
+  defp description do
+    "A simple helper library for using AMQP with Elixir"
   end
 end
