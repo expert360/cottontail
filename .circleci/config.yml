@@ -1,6 +1,6 @@
 version: '2'
 jobs:
-  ci:
+  build:
     working_directory: &working_directory /usr/src/cottontail
     docker:
       - image: elixir:1.6-alpine
@@ -12,8 +12,8 @@ jobs:
           path: *working_directory
       - restore_cache:
           keys:
-          - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
-          - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
+            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
+            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
           name: Install App
           command: |
             set -eou pipefail
@@ -43,4 +43,4 @@ workflows:
   version: '2'
   cottontail:
     jobs:
-      - ci
+      - build
