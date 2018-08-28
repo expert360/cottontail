@@ -11,16 +11,16 @@ jobs:
     steps:
       - checkout:
           path: *working_directory
-      - restore_cache:
-          keys:
-            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
-            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
       - run:
           name: Install Image
           command: |
             set -eou pipefail
             apk update
             apk add --no-cache git build-base openssh ca-certificates curl
+      - restore_cache:
+          keys:
+            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
+            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
       - run:
           name: Install App
           command: |
