@@ -1,4 +1,4 @@
-version: '2'
+version: 2
 jobs:
   build:
     working_directory: &working_directory /usr/src/cottontail
@@ -40,7 +40,7 @@ jobs:
             ./.codecov
 
 workflows:
-  version: '2'
+  version: 2
   cottontail:
     jobs:
       - build
