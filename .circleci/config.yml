@@ -1,6 +1,6 @@
 version: '2'
 jobs:
-  ci:
+  build:
     working_directory: &working_directory /usr/src/cottontail
     docker:
       - image: elixir:1.6-alpine
@@ -43,4 +43,4 @@ workflows:
   version: '2'
   cottontail:
     jobs:
-      - ci
+      - build
