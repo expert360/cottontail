@@ -16,7 +16,7 @@ jobs:
           command: |
             set -eou pipefail
             apk update
-            apk add --no-cache git build-base openssh ca-certificates curl
+            apk add --no-cache bash git build-base openssh ca-certificates curl
       - restore_cache:
           keys:
             - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
