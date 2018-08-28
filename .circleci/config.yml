@@ -14,6 +14,7 @@ jobs:
           keys:
             - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
             - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
+      - run:
           name: Install App
           command: |
             set -eou pipefail
