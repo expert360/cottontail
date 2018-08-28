@@ -7,6 +7,7 @@ jobs:
       - image: rabbitmq:3.6.6-management
     environment:
       AMQP_URL: "amqp://guest:guest@localhost/"
+      MIX_ENV: test
     steps:
       - checkout:
           path: *working_directory
@@ -25,6 +26,14 @@ jobs:
             mix deps.get
             mix deps.compile
             mix clean
+      - save_cache:
+          key: v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /usr/src/cottontail/deps
+            - /usr/src/cottontail/_build
+            - /root/.hex/
+            - /root/.mix/
+            - /root/.cache/rebar3/
       - run:
           name: Lint
           command: |
