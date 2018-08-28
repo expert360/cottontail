@@ -12,8 +12,8 @@ jobs:
           path: *working_directory
       - restore_cache:
           keys:
-          - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
-          - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
+            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
+            - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
           name: Install App
           command: |
             set -eou pipefail
