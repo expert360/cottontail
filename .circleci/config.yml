@@ -16,11 +16,15 @@ jobs:
             - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
             - v1-cottontail-{{ checksum "mix.lock" }}-{{ .Branch }}
       - run:
-          name: Install App
+          name: Install Image
           command: |
             set -eou pipefail
             apk update
-            apk add --no-cache curl
+            apk add --no-cache curl ca-certificates
+      - run:
+          name: Install App
+          command: |
+            set -eou pipefail
             mix local.hex --force
             mix local.rebar --force
             mix deps.get
