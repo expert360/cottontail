@@ -49,9 +49,16 @@ jobs:
       - run:
           name: Upload Coverage
           command: |
-            curl -s https://codecov.io/bash > .codecov
-            chmod +x .codecov
-            ./.codecov
+            cmd="curl -s https://codecov.io/bash > .codecov && \
+              chmod +x .codecov && \
+              ./.codecov"
+            n=0
+            until [ $n -ge 5 ]
+            do
+                $cmd && break
+                n=$[$n+1]
+                sleep 15
+            done
 
 workflows:
   version: 2
