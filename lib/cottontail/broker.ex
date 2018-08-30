@@ -1,19 +1,26 @@
 defmodule Cottontail.Broker do
   @moduledoc false
 
-  @type t :: %__MODULE__{}
-
-  defstruct [
-    :queue_pid,
-    :dispatcher_pid
-  ]
+  alias Cottontail.{Dispatcher, Queue}
 
   def start_link(spec) do
     GenServer.start_link(__MODULE__, spec)
   end
 
-  def init(spec) do
-    {:ok, spec}
+  def init(%{queue: q, dispatcher: d}) do
+    {:ok, q_pid} = Queue.start_link(Map.put(q, :broker_pid, self()))
+    {:ok, d_pid} = Dispatcher.start_link(Map.put(d, :broker_pid, self()))
+
+    {:ok, %{
+      queue_pid: q_pid,
+      dispatcher_pid: d_pid
+    }}
+  end
+  def init(%{queue_pid: q_pid, dispatcher_pid: d_pid}) do
+    {:ok, %{
+      queue_pid: q_pid,
+      dispatcher_pid: d_pid
+    }}
   end
 
   def handle_info({:basic_deliver, msg, meta}, spec) do
