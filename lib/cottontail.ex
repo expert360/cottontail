@@ -11,14 +11,10 @@ defmodule Cottontail do
 
   alias Cottontail.{
     Broker,
+    Config,
     Dispatcher,
     Queue
   }
-
-  @required [
-    queue: [:url, :exchange, :routing_key],
-    dispatcher: [:worker]
-  ]
 
   defmacro __using__(_) do
     quote do
@@ -49,13 +45,13 @@ defmodule Cottontail do
   end
 
   defmacro __before_compile__(%{module: mod}) do
-    cfg = process_config([
+    {:ok, cfg} = Config.process_config([
       description: Module.get_attribute(mod, :description),
       queue: Module.get_attribute(mod, :queue),
       dispatcher: Module.get_attribute(mod, :dispatcher)
     ])
 
-    validate_config(cfg)
+    Config.validate_config!(cfg)
 
     quote do
       use GenServer
@@ -71,12 +67,9 @@ defmodule Cottontail do
       end
 
       def init([]) do
-        {:ok, queue_pid} = Queue.start_link(@cottontail_spec.queue)
-        {:ok, dispatcher_pid} = Dispatcher.start_link(@cottontail_spec.dispatcher)
-
         Broker.start_link(%{
-          queue_pid: queue_pid,
-          dispatcher_pid: dispatcher_pid
+          queue: @cottontail_spec.queue,
+          dispatcher: @cottontail_spec.dispatcher
         })
       end
 
@@ -91,36 +84,4 @@ defmodule Cottontail do
       end
     end
   end
-
-  defp process_config(cfg) do
-    defaults = Application.get_env(:cottontail, :defaults, [])
-
-    merge(defaults, cfg)
-  end
-
-  defp validate_config(cfg) do
-    Enum.each(@required, fn {name, attrs} ->
-      sub = Keyword.get(cfg, name, nil)
-
-      if is_nil(sub) do
-        raise ArgumentError, "Config is missing for: #{inspect(name)}"
-      else
-        Enum.each(attrs, fn attr ->
-          if is_nil(Keyword.get(sub, attr, nil)) do
-            raise ArgumentError, "Config is missing for: #{inspect(name)} #{inspect(attr)}"
-          end
-        end)
-      end
-    end)
-  end
-
-  defp merge(one, two) do
-    Keyword.merge(one, two, &deep_resolve/3)
-  end
-
-  defp deep_resolve(_, one, two) when is_list(one) and is_list(two) do
-    merge(one, two)
-  end
-
-  defp deep_resolve(_, _, two), do: two
 end

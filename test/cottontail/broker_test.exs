@@ -5,9 +5,11 @@ defmodule Cottontail.BrokerTest do
   alias Cottontail.Broker
 
   setup do
-    {:ok, pid} = Broker.start_link(%Broker{
-      queue_pid: self(),
-      dispatcher_pid: self()
+    me = self()
+
+    {:ok, pid} = Broker.start_link(%{
+      queue_pid: me,
+      dispatcher_pid: me
     })
 
     {:ok, pid: pid}
