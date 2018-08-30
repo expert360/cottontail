@@ -15,6 +15,11 @@ defmodule Cottontail do
     Queue
   }
 
+  @required [
+    queue: [:url, :exchange, :routing_key],
+    dispatcher: [:worker]
+  ]
+
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
@@ -25,25 +30,41 @@ defmodule Cottontail do
 
   defmacro connection(desc, do: block) do
     quote do
-      @cottontail_spec %Cottontail{
-        description: unquote(desc)
-      }
+      @description unquote(desc)
 
       unquote(block)
     end
   end
 
   defmacro queue(opts) do
-    __set_to_spec__(Queue, :queue, opts)
+    quote do
+      @queue unquote(opts)
+    end
   end
 
   defmacro dispatcher(opts) do
-    __set_to_spec__(Dispatcher, :dispatcher, opts)
+    quote do
+      @dispatcher unquote(opts)
+    end
   end
 
-  defmacro __before_compile__(_) do
+  defmacro __before_compile__(%{module: mod}) do
+    cfg = process_config([
+      description: Module.get_attribute(mod, :description),
+      queue: Module.get_attribute(mod, :queue),
+      dispatcher: Module.get_attribute(mod, :dispatcher)
+    ])
+
+    validate_config(cfg)
+
     quote do
       use GenServer
+
+      @cottontail_spec %Cottontail{
+        description: unquote(cfg[:description]),
+        queue: struct(Queue, unquote(cfg[:queue])),
+        dispatcher: struct(Dispatcher, unquote(cfg[:dispatcher]))
+      }
 
       def start_link(_) do
         GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -71,12 +92,35 @@ defmodule Cottontail do
     end
   end
 
-  defp __set_to_spec__(type, key, opts) do
-    quote do
-      __MODULE__
-      |> Module.get_attribute(:cottontail_spec)
-      |> Map.put(unquote(key), struct(unquote(type), unquote(opts)))
-      |> (&(Module.put_attribute(__MODULE__, :cottontail_spec, &1))).()
-    end
+  defp process_config(cfg) do
+    defaults = Application.get_env(:cottontail, :defaults, [])
+
+    merge(defaults, cfg)
   end
+
+  defp validate_config(cfg) do
+    Enum.each(@required, fn {name, attrs} ->
+      sub = Keyword.get(cfg, name, nil)
+
+      if is_nil(sub) do
+        raise ArgumentError, "Config is missing for: #{inspect(name)}"
+      else
+        Enum.each(attrs, fn attr ->
+          if is_nil(Keyword.get(sub, attr, nil)) do
+            raise ArgumentError, "Config is missing for: #{inspect(name)} #{inspect(attr)}"
+          end
+        end)
+      end
+    end)
+  end
+
+  defp merge(one, two) do
+    Keyword.merge(one, two, &deep_resolve/3)
+  end
+
+  defp deep_resolve(_, one, two) when is_list(one) and is_list(two) do
+    merge(one, two)
+  end
+
+  defp deep_resolve(_, _, two), do: two
 end
