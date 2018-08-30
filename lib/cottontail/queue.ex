@@ -80,7 +80,7 @@ defmodule Cottontail.Queue do
     :ok <- apply(@adapter.Exchange, ex_type, [chan, ex_name, [durable: spec.durable]]),
     :ok <- @adapter.Queue.bind(chan, spec.routing_key, ex_name, routing_key: spec.routing_key),
     {:ok, _} <- maybe_consume(chan, spec) do
-      Logger.info("Queue client started: #{spec.description}")
+      Logger.info("Queue client started: #{spec.routing_key}")
 
       {:ok, chan}
     else
