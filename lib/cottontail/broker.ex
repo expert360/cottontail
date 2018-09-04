@@ -28,11 +28,8 @@ defmodule Cottontail.Broker do
 
     {:noreply, spec}
   end
-  def handle_info({:consume_ok, tag}, spec) do
-    send spec.queue_pid, {:ack, tag}
-
-    {:noreply, spec}
-  end
+  def handle_info({:basic_consume_ok, tag}, spec), do: do_consume_ok(tag, spec)
+  def handle_info({:consume_ok, tag}, spec), do: do_consume_ok(tag, spec)
   def handle_info({:consume_error, msg, tag}, spec) do
     send spec.queue_pid, {:reject, msg, tag}
 
@@ -40,6 +37,12 @@ defmodule Cottontail.Broker do
   end
   def handle_info({:publish, msg}, spec) do
     send spec.queue_pid, {:publish, msg}
+
+    {:noreply, spec}
+  end
+
+  defp do_consume_ok(tag, spec) do
+    send(spec.queue_pid, {:ack, tag})
 
     {:noreply, spec}
   end

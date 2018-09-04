@@ -54,6 +54,9 @@ defmodule Cottontail.Queue do
 
     {:noreply, spec}
   end
+  def handle_info({:ack, _}, spec) do
+    {:noreply, spec}
+  end
   def handle_info({:DOWN, _, :process, _pid, _reason}, spec) do
     send self(), :connect
 
