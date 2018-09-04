@@ -5,9 +5,11 @@ defmodule Cottontail.Queue do
   require Logger
 
   defstruct [
+    :broker_pid,
     :url,
     :exchange,
     :routing_key,
+    consumer: false,
     durable: true,
     dlx_exchange: :auto,
     dlx_routing_key: :auto
